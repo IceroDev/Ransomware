@@ -16,4 +16,8 @@ char *getMachineID(void);
 
 bool addPublicKey(void);
 
+bool isIPV4valid(const char *ipv4_address);
+
+bool isFullDigit(const char *str);
+
 #endif //RANSOMWARE_TOOL_H

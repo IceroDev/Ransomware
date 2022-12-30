@@ -2,12 +2,10 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
-#include <regex.h>
 
 #include "../../lib/key/key_set.h"
-
-#define REGEX_IPV4_EXPRESSION "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+#include "../../lib/tcp/tcp.h"
+#include "../../lib/util/tool.h"
 
 /**
  * Parse an `Option` into a string.
@@ -63,8 +61,6 @@ short int optionFromString(const char *str) {
  * @return Boolean to indicate if the value is valid or not. True if validated, false otherwise (bool)
  */
 bool validateOption(const unsigned short int *opt, const char *value) {
-    regex_t regex;
-
     switch (*opt) {
         case DIRECTORY:
             if (value[strlen(value) - 1] == '/')
@@ -79,21 +75,12 @@ bool validateOption(const unsigned short int *opt, const char *value) {
                 return false;
             break;
         case IP:
-            if (regcomp(&regex, REGEX_IPV4_EXPRESSION, REG_EXTENDED) != 0)
+            if (!isIPV4valid(value))
                 return false;
-
-            if (regexec(&regex, value, 0, NULL, 0) != 0) {
-                regfree(&regex);
-                return false;
-            }
-
-            regfree(&regex);
-
             break;
         case PORT:
-            for (unsigned int i = 0; i < strlen(value); i++)
-                if (!isdigit(value[i]))
-                    return false;
+            if (!isFullDigit(value))
+                return false;
             break;
     }
 
@@ -104,25 +91,27 @@ bool validateOption(const unsigned short int *opt, const char *value) {
  * Display the help.
  */
 void help(void) {
-    fputs("Program's arguments:\n"
-          "\t-d [path]\n"
-          "\t\tDirectory to encrypt/decrypt.\n"
-          "\t\tCannot end with '/'.\n"
-          "\t\tREQUIRED | NOT NULL\n"
-          "\t-key [key]\n"
-          "\t\tKey to decrypt the directories.\n"
-          "\t\tShould be 64 characters.\n"
-          "\t\tNOT NULL | ONCE\n"
-          "\t-iv [iv]\n"
-          "\t\tIv to decrypt the directories.\n"
-          "\t\tShould be 32 characters.\n"
-          "\t\tNOT NULL | ONCE\n"
-          "\t-ip [ip]\n"
-          "\t\tIp of the server.\n"
-          "\t\tValid IPV4 address.\n"
-          "\t\tNOT NULL | ONCE\n"
-          "\t-port [port]\n"
-          "\t\tPort of the server.\n"
-          "\t\tNumber only & port >= 1024.\n"
-          "\t\tNOT NULL | ONCE\n", stdout);
+    fprintf(stdout,
+            "Program's arguments:\n"
+            "\t-d [path]\n"
+            "\t\tDirectory to encrypt/decrypt.\n"
+            "\t\tCannot end with '/'.\n"
+            "\t\tREQUIRED | NOT NULL\n"
+            "\t-key [key]\n"
+            "\t\tKey to decrypt the directories.\n"
+            "\t\tShould be 64 characters.\n"
+            "\t\tNOT NULL | ONCE\n"
+            "\t-iv [iv]\n"
+            "\t\tIv to decrypt the directories.\n"
+            "\t\tShould be 32 characters.\n"
+            "\t\tNOT NULL | ONCE\n"
+            "\t-ip [ip]\n"
+            "\t\tIp of the server.\n"
+            "\t\tValid IPV4 address. Default value is: %s\n"
+            "\t\tNOT NULL | ONCE\n"
+            "\t-port [port]\n"
+            "\t\tPort of the server.\n"
+            "\t\tNumber only & port >= 1024. Default value is: %d.\n"
+            "\t\tNOT NULL | ONCE\n",
+            TCP_SERVER_IP, TCP_SERVER_PORT);
 }

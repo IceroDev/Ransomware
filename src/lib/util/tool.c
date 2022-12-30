@@ -2,6 +2,10 @@
 
 #include <openssl/err.h>
 #include <string.h>
+#include <ctype.h>
+#include <regex.h>
+
+#define REGEX_VALIDATE_IPV4_EXPRESSION "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
 
 /**
  * Convert byte to hex array.
@@ -77,6 +81,37 @@ bool addPublicKey(void) {
         return false;
 
     fclose(f);
+
+    return true;
+}
+
+/**
+ * Check if a string is a valid IPV4 address.
+ * @param ipv4_address IPV4 address to check (const char *)
+ * @return True if valid, false otherwise (bool)
+ */
+bool isIPV4valid(const char *ipv4_address) {
+    regex_t regex_validate_ipv4;
+
+    if (regcomp(&regex_validate_ipv4, REGEX_VALIDATE_IPV4_EXPRESSION, REG_EXTENDED) != 0)
+        return false;
+
+    bool is_valid = regexec(&regex_validate_ipv4, ipv4_address, 0, NULL, 0) == 0;
+
+    regfree(&regex_validate_ipv4);
+
+    return is_valid;
+}
+
+/**
+ * Check if a string is full of digits.
+ * @param value String to check (const char *)
+ * @return True if the string is full of digits, false otherwise (bool)
+ */
+bool isFullDigit(const char *str) {
+    for (unsigned int i = 0; i < strlen(str); i++)
+        if (!isdigit(str[i]))
+            return false;
 
     return true;
 }
