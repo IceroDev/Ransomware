@@ -39,12 +39,9 @@ const char *optionToString(const unsigned short int *opt) {
  * > 0 `Option` parsed.
  */
 short int optionFromString(const char *str) {
-    for (unsigned short int opt = 0; opt < OPTION_SIZE; opt++) {
-        const char *opt_str = optionToString(&opt);
-
-        if (strncmp(opt_str, str, strlen(opt_str)) == 0)
+    for (unsigned short int opt = 0; opt < OPTION_SIZE; opt++)
+        if (strcmp(optionToString(&opt), str) == 0)
             return (short int) opt;
-    }
 
     return -1;
 }
