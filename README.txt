@@ -36,11 +36,11 @@ Execution
     [PROJECT_DIRECTORY] needs to be replaced with the path where you put the project.
     [TYPE] needs to be replaced with the type you've chosen at the previous step : debug or release.
 
-    [PROJECT_DIRECTORY]/cmake-build-[TYPE]/src/attacker/attacker
+    [PROJECT_DIRECTORY]/cmake-build-[TYPE]/src/attacker/attacker --help
     [PROJECT_DIRECTORY]/cmake-build-[TYPE]/src/victim/victim --help
 
 
 Example
-    /home/ubuntu/deployment/cmake-build-release/src/attacker/attacker
+    /home/ubuntu/deployment/cmake-build-release/src/attacker/attacker --help
     /home/ubuntu/deployment/cmake-build-release/src/victim/victim --help
 
