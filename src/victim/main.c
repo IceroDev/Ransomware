@@ -338,8 +338,8 @@ int main(int argc, char *argv[]) {
                 // atoi is safe here because the value has been validated.
                 port = atoi(argument->value);
 
-                if (port == 0) {
-                    fprintf(stderr, "Failed to convert the port to an integer value.\n"
+                if (port < 1024) {
+                    fprintf(stderr, "Invalid PORT to use.\n"
                                     "Using default PORT for the server: %d\n", TCP_SERVER_PORT);
                     port = TCP_SERVER_PORT;
                 }

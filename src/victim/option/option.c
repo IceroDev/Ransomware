@@ -123,6 +123,6 @@ void help(void) {
           "\t\tNOT NULL | ONCE\n"
           "\t-port [port]\n"
           "\t\tPort of the server.\n"
-          "\t\tNumber only.\n"
+          "\t\tNumber only & port >= 1024.\n"
           "\t\tNOT NULL | ONCE\n", stdout);
 }
