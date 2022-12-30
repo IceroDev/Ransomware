@@ -3,13 +3,10 @@
 
 #include <stdbool.h>
 
-#define OPTION_SIZE 6
+#define OPTION_SIZE 3
 
 typedef enum Option {
     HELP,
-    DIRECTORY,
-    KEY,
-    IV,
     IP,
     PORT,
 } Option;

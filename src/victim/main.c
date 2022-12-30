@@ -31,7 +31,8 @@ bool sendInformation(const int *client_socked_id, const char *machine_id, const 
  * @param directories_size Number of directories' path to send (const unsigned short int *)
  * @return Success of sending all information (bool)
  */
-bool sendAllInformation(const KeySet *key_set, const char **directories, const unsigned short int *directories_size) {
+bool sendAllInformation(const char *ip, const int port, const KeySet *key_set, const char **directories,
+                        const unsigned short int *directories_size) {
     int client_socked_id;
 
     if ((client_socked_id = newSocketId()) == -1) {
@@ -39,7 +40,7 @@ bool sendAllInformation(const KeySet *key_set, const char **directories, const u
         return false;
     }
 
-    SocketAddress server_address = newSocketAddress(TCP_SERVER_IP, TCP_SERVER_PORT);
+    SocketAddress server_address = newSocketAddress(ip, port);
 
     const unsigned short int max_try = 3;
     unsigned short int try = 0;
@@ -271,7 +272,7 @@ int main(int argc, char *argv[]) {
     Argument *arguments = NULL;
 
     const unsigned short int arg_value_null[] = {HELP};
-    const unsigned short int arg_once[] = {KEY, IV};
+    const unsigned short int arg_once[] = {KEY, IV, IP, PORT};
     const unsigned short int arg_required[] = {DIRECTORY};
 
     const short int len = parseArguments(&arguments,
@@ -291,6 +292,9 @@ int main(int argc, char *argv[]) {
     }
 
     bool is_help = false;
+
+    const char *ip = NULL;
+    int port = 0;
 
     const char **directories = NULL;
     unsigned short int directories_size = 0;
@@ -327,6 +331,19 @@ int main(int argc, char *argv[]) {
             case IV:
                 iv = argument->value;
                 break;
+            case IP:
+                ip = argument->value;
+                break;
+            case PORT:
+                // atoi is safe here because the value has been validated.
+                port = atoi(argument->value);
+
+                if (port == 0) {
+                    fprintf(stderr, "Failed to convert the port to an integer value.\n"
+                                    "Using default PORT for the server: %d\n", TCP_SERVER_PORT);
+                    port = TCP_SERVER_PORT;
+                }
+                break;
         }
     }
 
@@ -362,7 +379,17 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
 
-        if (!sendAllInformation(key_set, directories, &directories_size)) {
+        if (ip == NULL) {
+            fprintf(stdout, "Using default IP for the server: %s\n", TCP_SERVER_IP);
+            ip = TCP_SERVER_IP;
+        }
+
+        if (port == 0) {
+            fprintf(stdout, "Using default PORT for the server: %d\n", TCP_SERVER_PORT);
+            port = TCP_SERVER_PORT;
+        }
+
+        if (!sendAllInformation(ip, port, key_set, directories, &directories_size)) {
             free_key_set_macro(key_set);
             free(directories);
             return EXIT_FAILURE;

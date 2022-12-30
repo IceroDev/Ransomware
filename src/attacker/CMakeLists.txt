@@ -3,4 +3,4 @@ project(attacker C)
 
 set(CMAKE_C_STANDARD ${CMAKE_C_STANDARD})
 
-add_executable(attacker main.c)
+add_executable(attacker main.c option/option.c option/option.h)

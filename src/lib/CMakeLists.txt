@@ -9,5 +9,5 @@ add_subdirectory(rsa)
 add_subdirectory(tcp)
 add_subdirectory(util)
 
-target_link_libraries(attacker key rsa tcp util)
+target_link_libraries(attacker key parser rsa tcp util)
 target_link_libraries(victim key parser rsa tcp util)

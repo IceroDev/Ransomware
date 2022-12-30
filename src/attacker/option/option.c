@@ -5,8 +5,6 @@
 #include <ctype.h>
 #include <regex.h>
 
-#include "../../lib/key/key_set.h"
-
 #define REGEX_IPV4_EXPRESSION "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
 
 /**
@@ -20,15 +18,6 @@ const char *optionToString(const unsigned short int *opt) {
     switch (*opt) {
         case HELP:
             str = "--help";
-            break;
-        case DIRECTORY:
-            str = "-d";
-            break;
-        case KEY:
-            str = "-key";
-            break;
-        case IV:
-            str = "-iv";
             break;
         case IP:
             str = "-ip";
@@ -66,18 +55,6 @@ bool validateOption(const unsigned short int *opt, const char *value) {
     regex_t regex;
 
     switch (*opt) {
-        case DIRECTORY:
-            if (value[strlen(value) - 1] == '/')
-                return false;
-            break;
-        case KEY:
-            if (strlen(value) != 2 * AES_256_KEY_SIZE)
-                return false;
-            break;
-        case IV:
-            if (strlen(value) != 2 * AES_BLOCK_SIZE)
-                return false;
-            break;
         case IP:
             if (regcomp(&regex, REGEX_IPV4_EXPRESSION, REG_EXTENDED) != 0)
                 return false;
@@ -105,18 +82,6 @@ bool validateOption(const unsigned short int *opt, const char *value) {
  */
 void help(void) {
     fputs("Program's arguments:\n"
-          "\t-d [path]\n"
-          "\t\tDirectory to encrypt/decrypt.\n"
-          "\t\tCannot end with '/'.\n"
-          "\t\tREQUIRED | NOT NULL\n"
-          "\t-key [key]\n"
-          "\t\tKey to decrypt the directories.\n"
-          "\t\tShould be 64 characters.\n"
-          "\t\tNOT NULL | ONCE\n"
-          "\t-iv [iv]\n"
-          "\t\tIv to decrypt the directories.\n"
-          "\t\tShould be 32 characters.\n"
-          "\t\tNOT NULL | ONCE\n"
           "\t-ip [ip]\n"
           "\t\tIp of the server.\n"
           "\t\tValid IPV4 address.\n"

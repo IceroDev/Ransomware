@@ -2,7 +2,11 @@
 #include <limits.h>
 #include <string.h>
 
+#include "option/option.h"
 #include "../lib/key/key_set.h"
+#include "../lib/parser/argument.h"
+#include "../lib/parser/argument_parser.h"
+#include "../lib/parser/argument_parser_error.h"
 #include "../lib/tcp/tcp.h"
 #include "../lib/util/tool.h"
 
@@ -41,7 +45,66 @@
 
 #define DELIMITER " "
 
-int main() {
+int main(int argc, char *argv[]) {
+    Argument *arguments = NULL;
+
+    const unsigned short int arg_value_null[] = {HELP};
+    const unsigned short int arg_once[] = {IP, PORT};
+    const unsigned short int arg_required[] = {};
+
+    const short int len = parseArguments(&arguments,
+                                         &argc, argv,
+                                         optionFromString,
+                                         validateOption,
+                                         arg_value_null, get_size_macro(arg_value_null),
+                                         arg_once, get_size_macro(arg_once),
+                                         arg_required, get_size_macro(arg_required));
+
+    if (len <= -1) {
+        const ArgumentParserError error = (const ArgumentParserError) len;
+        displayParseArgumentErrorMeaning(argv, arguments, &error, optionToString);
+        fputs("Do --help for more information.\n", stdout);
+        free(arguments);
+        return EXIT_FAILURE;
+    }
+
+    bool is_help = false;
+
+    const char *ip = NULL;
+    int port = 0;
+
+    // Place the arguments in their respective variable.
+    for (unsigned short int i = 0; i < len; i++) {
+        const Argument *argument = &arguments[i];
+
+        switch ((Option) argument->option) {
+            case HELP:
+                is_help = true;
+                break;
+            case IP:
+                ip = argument->value;
+                break;
+            case PORT:
+                // atoi is safe here because the value has been validated.
+                port = atoi(argument->value);
+
+                if (port == 0) {
+                    fprintf(stderr, "Failed to convert the port to an integer value.\n"
+                                    "Using default PORT for the server: %d\n", TCP_SERVER_PORT);
+                    port = TCP_SERVER_PORT;
+                }
+                break;
+        }
+    }
+
+    // No longer need of arguments.
+    free(arguments);
+
+    if (is_help) {
+        help();
+        return EXIT_SUCCESS;
+    }
+
     int server_socket_id;
 
     if ((server_socket_id = newSocketId()) == -1) {
@@ -49,7 +112,17 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    SocketAddress server_address = newSocketAddress(TCP_SERVER_IP, TCP_SERVER_PORT);
+    if (ip == NULL) {
+        fprintf(stdout, "Using default IP for the server: %s\n", TCP_SERVER_IP);
+        ip = TCP_SERVER_IP;
+    }
+
+    if (port == 0) {
+        fprintf(stdout, "Using default PORT for the server: %d\n", TCP_SERVER_PORT);
+        port = TCP_SERVER_PORT;
+    }
+
+    SocketAddress server_address = newSocketAddress(ip, port);
 
     if (!bindSocket(&server_socket_id, &server_address)) {
         fputs("Failed to bind the server.\n", stderr);
@@ -57,7 +130,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    fprintf(stdout, "Server listening on %s:%d\n", TCP_SERVER_IP, TCP_SERVER_PORT);
+    fprintf(stdout, "Server listening on %s:%d\n", ip, port);
 
     if (!listenServer(&server_socket_id, 1)) {
         fputs("Error in listen.\n", stderr);
