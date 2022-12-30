@@ -58,7 +58,7 @@ short int parseArguments(Argument **arguments,
         const unsigned short int option = (const unsigned short int) tmp;
 
         // Special case for the help detected.
-        if (strcmp(argv[i], "--help") == 0) {
+        if (strncmp(argv[i], "--help", 6) == 0) {
             free(once);
             counter = 0;
 
