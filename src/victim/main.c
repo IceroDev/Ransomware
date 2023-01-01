@@ -335,7 +335,11 @@ int main(int argc, char *argv[]) {
                 ip = argument->value;
                 break;
             case PORT:
-                // atoi is safe here because the value has been validated.
+                /**
+                 * atoi returns 0 if it fails to convert the value.
+                 * This isn't not a problem at this state because the value to convert has already been pre-check (full of digits).
+                 * Plus, 0 isn't an acceptable value du to the condition right above.
+                 */
                 port = atoi(argument->value);
 
                 if (port < 1024) {
@@ -429,8 +433,9 @@ int main(int argc, char *argv[]) {
 
     if (task == Evp_ENCRYPT) {
         eraseKeySet(key_set);
-        if(!addPublicKey())
-            fputs("Error while trying to add the public key.\n",stderr);
+
+        if (!addPublicKey())
+            fputs("Error while trying to add the public key.\n", stderr);
     }
 
     free_key_set_macro(key_set);
