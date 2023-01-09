@@ -55,5 +55,5 @@ A ransomware in C for a school project at Henallux.
 ```      
 
 # Project scoring
-I got 16/20
+I got 16/20  
 Justin got 20/20
