@@ -53,3 +53,7 @@ A ransomware in C for a school project at Henallux.
 /home/ubuntu/deployment/cmake-build-release/src/attacker/attacker --help
 /home/ubuntu/deployment/cmake-build-release/src/victim/victim --help
 ```      
+
+# Project scoring
+I got 16/20
+Justin got 20/20
